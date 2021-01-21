@@ -1,5 +1,5 @@
 # -*- coding: utf8 -*-
-
+import re
 
 # Help Function - 수정하지 말 것
 def get_morse_code_dict():
@@ -89,7 +89,8 @@ def is_validated_english_sentence(user_input):
         if i.isdigit(): return False #1) 숫자 포함
         elif i in text: return False #2) 특수문자 포함
     
-    temp = user_input.strip('.,!?')# 3) 문장부호 제외하고 입력값 없거나 빈칸
+    temp = re.sub('[.,!? ]', '', user_input) # 3) 문장부호 제외하고 입력값 없거나 빈칸
+    
     if len(temp) == 0: return False
 
     return True
@@ -121,8 +122,10 @@ def is_validated_morse_code(user_input):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    
-    if len(user_input.strip('-. ')) != 0 : return False #1) "-","."," "외 다른 글자가 포함되어 있는 경우
+    dic = get_morse_code_dict()
+    text = ''
+    text = re.sub('[-. ]', '', user_input)
+    if len(text) != 0 : return False #1) "-","."," "외 다른 글자가 포함되어 있는 경우
     
     #2) get_morse_code_dict 함수에 정의된 Morse Code 부호외 다른 코드가 입력된 경우
     for i in user_input.split(): 
@@ -153,8 +156,9 @@ def get_cleaned_english_sentence(raw_english_sentence):
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
     text = ''
-    text = raw_english_sentence.strip('.,!?') #문장부호 삭제
+    text = re.sub('[.,!?]', '', raw_english_sentence)
     text = text.strip() #양옆 공백제거
+    text = ' '.join(text.split()) #공백 여러개일 때 하나로 줄이기
     return text
     # ==================================
 
@@ -182,8 +186,6 @@ def decoding_character(morse_character):
     """
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
-    idx = 0
-
     morse_code_dict = get_morse_code_dict()
 
     ## value로 key 접근하기 위해 for문 쓰지 않으려고 인덱스 활용
@@ -243,10 +245,10 @@ def decoding_sentence(morse_sentence):
     # ===Modify codes below=============
     # 조건에 따라 변환되어야 할 결과를 result 변수에 할당 또는 필요에 따라 자유로운 수정
     text = ''
-    for i in morse_sentence.split():
-        text += decoding_character(i)
-        text += ' '
-    return text[:-1]
+    for i in morse_sentence.split(' '):
+        if i == '': text += ' '
+        else: text += decoding_character(i)
+    return text
     # ==================================
 
 
@@ -275,7 +277,7 @@ def encoding_sentence(english_sentence):
 
     text = get_cleaned_english_sentence(english_sentence) #문장부호, 맨앞뒤 공백삭제
     for i in text:
-        if i == ' ': res += i #공백은 걍 추가
+        if i == ' ': res += i#공백은 그대로
         else: 
             res += encoding_character(i)
             res += ' '
